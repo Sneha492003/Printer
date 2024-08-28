@@ -1,10 +1,26 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import mysql.connector
-import csv
-from fpdf import FPDF
+import bcrypt
+from flask_mail import Mail, Message
+import random
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.your-email-provider.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USERNAME'] = 'your-email@example.com'
+app.config['MAIL_PASSWORD'] = 'your-email-password'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+
+mail = Mail(app)
+
+
+# Admin credentials
+ADMIN_ID = "admin"
+ADMIN_PASSWORD = "admin123"
 
 # Database Connection
 def connect_to_database():
@@ -15,9 +31,23 @@ def connect_to_database():
         database="printer"
     )
 
-# Admin credentials
-ADMIN_ID = "admin"
-ADMIN_PASSWORD = "admin123"
+# Hash the password before storing
+def hash_password(password):
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+# Check password hash
+def check_password(hashed_password, plain_password):
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
+
+# Generate OTP
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+# Send OTP to Email
+def send_otp(email, otp):
+    msg = Message('Your OTP', sender='your-email@example.com', recipients=[email])
+    msg.body = f"Your OTP for login is: {otp}"
+    mail.send(msg)
 
 # Record Prints with Logged-in User ID
 def record_print(logged_in_user_id, pages, purpose):
@@ -43,12 +73,15 @@ def login():
         
         connection = connect_to_database()
         cursor = connection.cursor()
-        cursor.execute("SELECT user_id FROM users WHERE user_id = %s AND password = %s", (user_id, password))
+        cursor.execute("SELECT user_id, password, email FROM users WHERE user_id = %s", (user_id,))
         result = cursor.fetchone()
         
-        if result:
+        if result and check_password(result[1], password):
             session['user_id'] = user_id
-            return redirect(url_for('user_dashboard'))
+            otp = generate_otp()
+            session['otp'] = otp
+            send_otp(result[2], otp)
+            return redirect(url_for('verify_otp'))
         else:
             flash('Invalid user ID or password')
         
@@ -56,6 +89,22 @@ def login():
         connection.close()
         
     return render_template('login.html')
+
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        otp = request.form['otp']
+        
+        if otp == session.get('otp'):
+            session.pop('otp', None)
+            return redirect(url_for('user_dashboard'))
+        else:
+            flash('Invalid OTP. Please try again.')
+
+    return render_template('verify_otp.html')
 
 @app.route('/user_dashboard', methods=['GET', 'POST'])
 def user_dashboard():
@@ -88,6 +137,7 @@ def admin_login():
 def admin_panel():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
+    
     connection = connect_to_database()
     cursor = connection.cursor()
     
