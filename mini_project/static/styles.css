@@ -6,6 +6,11 @@ body {
     padding: 0;
 }
 
+a {
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+}
 .container {
     width: 80%;
     margin: 20px auto;
@@ -77,4 +82,31 @@ footer {
     color: #842029;
     border-radius: 5px;
     margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+button {
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
 }

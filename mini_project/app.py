@@ -88,8 +88,40 @@ def admin_login():
 def admin_panel():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
+    connection = connect_to_database()
+    cursor = connection.cursor()
     
-    return render_template('admin_panel.html')
+    cursor.execute("SELECT user_id, department, print_count FROM users")
+    users = cursor.fetchall()
+    
+    cursor.close()
+    connection.close()
+    return render_template('admin_panel.html', users=users)
+
+@app.route('/edit_user/<user_id>', methods=['POST'])
+def edit_user(user_id):
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+    
+    # Your edit user logic here
+    
+    return redirect(url_for('admin_panel'))
+
+@app.route('/delete_user/<user_id>', methods=['POST'])
+def delete_user(user_id):
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+    
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    
+    cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+    connection.commit()
+    
+    cursor.close()
+    connection.close()
+    
+    return redirect(url_for('admin_panel'))
 
 @app.route('/export_csv')
 def export_csv():
