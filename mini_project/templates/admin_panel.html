@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+    </header>
+
+    <div class="container">
+        <ul>
+            <li><a href="{{ url_for('export_csv') }}">Export Print Jobs to CSV</a></li>
+            <li><a href="{{ url_for('export_pdf') }}">Export Print Jobs to PDF</a></li>
+            <li><a href="{{ url_for('view_users') }}">View User Details</a></li>
+        </ul>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Printer Management System</p>
+    </footer>
+</body>
+</html>

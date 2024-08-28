@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printer Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Printer Management System</h1>
+    </header>
+
+    <div class="container">
+        <h2>Welcome to the Printer Management System</h2>
+        <p><a href="{{ url_for('login') }}">User Login</a> | <a href="{{ url_for('admin_login') }}">Admin Login</a></p>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Printer Management System</p>
+    </footer>
+</body>
+</html>

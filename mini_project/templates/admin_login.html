@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Admin Login</h1>
+    </header>
+
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash">{{ messages[0] }}</div>
+          {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('admin_login') }}">
+            <label for="admin_id">Admin ID:</label>
+            <input type="text" id="admin_id" name="admin_id">
+
+            <label for="admin_password">Password:</label>
+            <input type="password" id="admin_password" name="admin_password">
+
+            <input type="submit" value="Login">
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Printer Management System</p>
+    </footer>
+</body>
+</html>
